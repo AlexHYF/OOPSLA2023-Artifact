@@ -27,12 +27,12 @@ LazyCDProof::LazyCDProof(ProofNodeManager* pnm,
 
 LazyCDProof::~LazyCDProof() {}
 
-std::shared_ptr<ProofNode> LazyCDProof::getProofFor(Node fact)
+std::shared_ptr<ProofNode> LazyCDProof::mkProof(Node fact)
 {
   Trace("lazy-cdproof") << "LazyCDProof::mkLazyProof " << fact << std::endl;
   // make the proof, which should always be non-null, since we construct an
   // assumption in the worst case.
-  std::shared_ptr<ProofNode> opf = CDProof::getProofFor(fact);
+  std::shared_ptr<ProofNode> opf = CDProof::mkProof(fact);
   Assert(opf != nullptr);
   if (!hasGenerators())
   {
@@ -175,7 +175,5 @@ bool LazyCDProof::hasGenerator(Node fact) const
   }
   return it != d_gens.end();
 }
-
-std::string LazyCDProof::identify() const { return "LazyCDProof"; }
 
 }  // namespace CVC4

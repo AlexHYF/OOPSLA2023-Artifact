@@ -589,7 +589,8 @@ void Smt2Printer::toStream(std::ostream& out,
   case kind::PARTIAL_SELECT_0:
   case kind::PARTIAL_SELECT_1:
   case kind::ARRAY_TYPE:
-  case kind::EQ_RANGE: out << smtKindString(k, d_variant) << " "; break;
+    out << smtKindString(k, d_variant) << " ";
+    break;
 
   // string theory
   case kind::STRING_CONCAT:
@@ -1069,8 +1070,6 @@ static string smtKindString(Kind k, Variant v)
   case kind::ARRAY_TYPE: return "Array";
   case kind::PARTIAL_SELECT_0: return "partial_select_0";
   case kind::PARTIAL_SELECT_1: return "partial_select_1";
-  case kind::EQ_RANGE:
-    return "eqrange";
 
     // bv theory
   case kind::BITVECTOR_CONCAT: return "concat";

@@ -2,7 +2,7 @@
 /*! \file sets.cpp
  ** \verbatim
  ** Top contributors (to current version):
- **   Aina Niemetz
+ **   Kshitij Bansal, Aina Niemetz, Tim King
  ** This file is part of the CVC4 project.
  ** Copyright (c) 2009-2020 by the authors listed in the file AUTHORS
  ** in the top-level source directory) and their institutional affiliations.
@@ -16,80 +16,82 @@
 
 #include <iostream>
 
-#include <cvc4/api/cvc4cpp.h>
+#include <cvc4/cvc4.h>
+#include <cvc4/options/set_language.h>
 
 using namespace std;
-using namespace CVC4::api;
+using namespace CVC4;
 
-int main()
-{
-  Solver slv;
+int main() {
+  ExprManager em;
+  SmtEngine smt(&em);
 
   // Optionally, set the logic. We need at least UF for equality predicate,
   // integers (LIA) and sets (FS).
-  slv.setLogic("QF_UFLIAFS");
+  smt.setLogic("QF_UFLIAFS");
 
   // Produce models
-  slv.setOption("produce-models", "true");
-  slv.setOption("output-language", "smt2");
+  smt.setOption("produce-models", true);
 
-  Sort integer = slv.getIntegerSort();
-  Sort set = slv.mkSetSort(integer);
+  // Set output language to SMTLIB2
+  cout << language::SetLanguage(language::output::LANG_SMTLIB_V2);
+
+  Type integer = em.integerType();
+  Type set = em.mkSetType(integer);
 
   // Verify union distributions over intersection
   // (A union B) intersection C = (A intersection C) union (B intersection C)
   {
-    Term A = slv.mkConst(set, "A");
-    Term B = slv.mkConst(set, "B");
-    Term C = slv.mkConst(set, "C");
+    Expr A = em.mkVar("A", set);
+    Expr B = em.mkVar("B", set);
+    Expr C = em.mkVar("C", set);
 
-    Term unionAB = slv.mkTerm(UNION, A, B);
-    Term lhs = slv.mkTerm(INTERSECTION, unionAB, C);
+    Expr unionAB = em.mkExpr(kind::UNION, A, B);
+    Expr lhs = em.mkExpr(kind::INTERSECTION, unionAB, C);
 
-    Term intersectionAC = slv.mkTerm(INTERSECTION, A, C);
-    Term intersectionBC = slv.mkTerm(INTERSECTION, B, C);
-    Term rhs = slv.mkTerm(UNION, intersectionAC, intersectionBC);
+    Expr intersectionAC = em.mkExpr(kind::INTERSECTION, A, C);
+    Expr intersectionBC = em.mkExpr(kind::INTERSECTION, B, C);
+    Expr rhs = em.mkExpr(kind::UNION, intersectionAC, intersectionBC);
 
-    Term theorem = slv.mkTerm(EQUAL, lhs, rhs);
+    Expr theorem = em.mkExpr(kind::EQUAL, lhs, rhs);
 
-    cout << "CVC4 reports: " << theorem << " is " << slv.checkEntailed(theorem)
+    cout << "CVC4 reports: " << theorem << " is " << smt.checkEntailed(theorem)
          << "." << endl;
   }
 
   // Verify emptset is a subset of any set
   {
-    Term A = slv.mkConst(set, "A");
-    Term emptyset = slv.mkEmptySet(set);
+    Expr A = em.mkVar("A", set);
+    Expr emptyset = em.mkConst(EmptySet(set));
 
-    Term theorem = slv.mkTerm(SUBSET, emptyset, A);
+    Expr theorem = em.mkExpr(kind::SUBSET, emptyset, A);
 
-    cout << "CVC4 reports: " << theorem << " is " << slv.checkEntailed(theorem)
+    cout << "CVC4 reports: " << theorem << " is " << smt.checkEntailed(theorem)
          << "." << endl;
   }
 
   // Find me an element in {1, 2} intersection {2, 3}, if there is one.
   {
-    Term one = slv.mkReal(1);
-    Term two = slv.mkReal(2);
-    Term three = slv.mkReal(3);
+    Expr one = em.mkConst(Rational(1));
+    Expr two = em.mkConst(Rational(2));
+    Expr three = em.mkConst(Rational(3));
 
-    Term singleton_one = slv.mkTerm(SINGLETON, one);
-    Term singleton_two = slv.mkTerm(SINGLETON, two);
-    Term singleton_three = slv.mkTerm(SINGLETON, three);
-    Term one_two = slv.mkTerm(UNION, singleton_one, singleton_two);
-    Term two_three = slv.mkTerm(UNION, singleton_two, singleton_three);
-    Term intersection = slv.mkTerm(INTERSECTION, one_two, two_three);
+    Expr singleton_one = em.mkExpr(kind::SINGLETON, one);
+    Expr singleton_two = em.mkExpr(kind::SINGLETON, two);
+    Expr singleton_three = em.mkExpr(kind::SINGLETON, three);
+    Expr one_two = em.mkExpr(kind::UNION, singleton_one, singleton_two);
+    Expr two_three = em.mkExpr(kind::UNION, singleton_two, singleton_three);
+    Expr intersection = em.mkExpr(kind::INTERSECTION, one_two, two_three);
 
-    Term x = slv.mkConst(integer, "x");
+    Expr x = em.mkVar("x", integer);
 
-    Term e = slv.mkTerm(MEMBER, x, intersection);
+    Expr e = em.mkExpr(kind::MEMBER, x, intersection);
 
-    Result result = slv.checkSatAssuming(e);
+    Result result = smt.checkSat(e);
     cout << "CVC4 reports: " << e << " is " << result << "." << endl;
 
-    if (result.isSat())
-    {
-      cout << "For instance, " << slv.getValue(x) << " is a member." << endl;
+    if(result == Result::SAT) {
+      cout << "For instance, " << smt.getValue(x) << " is a member." << endl;
     }
   }
 }

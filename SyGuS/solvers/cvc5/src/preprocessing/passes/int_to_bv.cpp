@@ -23,7 +23,6 @@
 #include <vector>
 
 #include "expr/node.h"
-#include "expr/node_traversal.h"
 #include "theory/rewriter.h"
 #include "theory/theory.h"
 
@@ -37,58 +36,107 @@ using NodeMap = std::unordered_map<Node, Node, NodeHashFunction>;
 
 namespace {
 
+// TODO: clean this up
+struct intToBV_stack_element
+{
+  TNode d_node;
+  bool d_children_added;
+  intToBV_stack_element(TNode node) : d_node(node), d_children_added(false) {}
+}; /* struct intToBV_stack_element */
+
 bool childrenTypesChanged(Node n, NodeMap& cache) {
+  bool result = false;
   for (Node child : n) {
     TypeNode originalType = child.getType();
     TypeNode newType = cache[child].getType();
     if (! newType.isSubtypeOf(originalType)) {
-      return true;
+      result = true;
+      break;
     }
   }
-  return false;
+  return result;
 }
 
 
 Node intToBVMakeBinary(TNode n, NodeMap& cache)
 {
-  for (TNode current : NodeDfsIterable(n, VisitOrder::POSTORDER,
-           [&cache](TNode nn) { return cache.count(nn) > 0; }))
+  // Do a topological sort of the subexpressions and substitute them
+  vector<intToBV_stack_element> toVisit;
+  toVisit.push_back(n);
+
+  while (!toVisit.empty())
   {
-    Node result;
-    NodeManager* nm = NodeManager::currentNM();
-    if (current.getNumChildren() == 0)
+    // The current node we are processing
+    intToBV_stack_element& stackHead = toVisit.back();
+    TNode current = stackHead.d_node;
+
+    NodeMap::iterator find = cache.find(current);
+    if (find != cache.end())
     {
-      result = current;
+      toVisit.pop_back();
+      continue;
     }
-    else if (current.getNumChildren() > 2
-             && (current.getKind() == kind::PLUS
-                 || current.getKind() == kind::MULT))
+    if (stackHead.d_children_added)
     {
-      Assert(cache.find(current[0]) != cache.end());
-      result = cache[current[0]];
-      for (unsigned i = 1; i < current.getNumChildren(); ++i)
+      // Children have been processed, so rebuild this node
+      Node result;
+      NodeManager* nm = NodeManager::currentNM();
+      if (current.getNumChildren() > 2
+          && (current.getKind() == kind::PLUS
+              || current.getKind() == kind::MULT))
       {
-        Assert(cache.find(current[i]) != cache.end());
-        Node child = current[i];
-        Node childRes = cache[current[i]];
-        result = nm->mkNode(current.getKind(), result, childRes);
+        Assert(cache.find(current[0]) != cache.end());
+        result = cache[current[0]];
+        for (unsigned i = 1; i < current.getNumChildren(); ++i)
+        {
+          Assert(cache.find(current[i]) != cache.end());
+          Node child = current[i];
+          Node childRes = cache[current[i]];
+          result = nm->mkNode(current.getKind(), result, childRes);
+        }
       }
+      else
+      {
+        NodeBuilder<> builder(current.getKind());
+        if (current.getMetaKind() == kind::metakind::PARAMETERIZED) {
+          builder << current.getOperator();
+        }
+
+        for (unsigned i = 0; i < current.getNumChildren(); ++i)
+        {
+          Assert(cache.find(current[i]) != cache.end());
+          builder << cache[current[i]];
+        }
+        result = builder;
+      }
+      cache[current] = result;
+      toVisit.pop_back();
     }
     else
     {
-      NodeBuilder<> builder(current.getKind());
-      if (current.getMetaKind() == kind::metakind::PARAMETERIZED) {
-        builder << current.getOperator();
-      }
-
-      for (unsigned i = 0; i < current.getNumChildren(); ++i)
+      // Mark that we have added the children if any
+      if (current.getNumChildren() > 0)
       {
-        Assert(cache.find(current[i]) != cache.end());
-        builder << cache[current[i]];
+        stackHead.d_children_added = true;
+        // We need to add the children
+        for (TNode::iterator child_it = current.begin();
+             child_it != current.end();
+             ++child_it)
+        {
+          TNode childNode = *child_it;
+          NodeMap::iterator childFind = cache.find(childNode);
+          if (childFind == cache.end())
+          {
+            toVisit.push_back(childNode);
+          }
+        }
       }
-      result = builder;
+      else
+      {
+        cache[current] = current;
+        toVisit.pop_back();
+      }
     }
-    cache[current] = result;
   }
   return cache[n];
 }
@@ -99,16 +147,30 @@ Node intToBV(TNode n, NodeMap& cache)
   AlwaysAssert(size > 0);
   AlwaysAssert(!options::incrementalSolving());
 
+  vector<intToBV_stack_element> toVisit;
   NodeMap binaryCache;
   Node n_binary = intToBVMakeBinary(n, binaryCache);
+  toVisit.push_back(TNode(n_binary));
 
-  for (TNode current : NodeDfsIterable(n_binary, VisitOrder::POSTORDER,
-           [&cache](TNode nn) { return cache.count(nn) > 0; }))
+  while (!toVisit.empty())
   {
-    NodeManager* nm = NodeManager::currentNM();
-    if (current.getNumChildren() > 0)
+    // The current node we are processing
+    intToBV_stack_element& stackHead = toVisit.back();
+    TNode current = stackHead.d_node;
+
+    // If node is already in the cache we're done, pop from the stack
+    NodeMap::iterator find = cache.find(current);
+    if (find != cache.end())
     {
-      // Not a leaf
+      toVisit.pop_back();
+      continue;
+    }
+
+    // Not yet substituted, so process
+    NodeManager* nm = NodeManager::currentNM();
+    if (stackHead.d_children_added)
+    {
+      // Children have been processed, so rebuild this node
       vector<Node> children;
       unsigned max = 0;
       for (unsigned i = 0; i < current.getNumChildren(); ++i)
@@ -196,51 +258,73 @@ Node intToBV(TNode n, NodeMap& cache)
 
       result = Rewriter::rewrite(result);
       cache[current] = result;
+      toVisit.pop_back();
     }
     else
     {
-      // It's a leaf: could be a variable or a numeral
-      Node result = current;
-      if (current.isVar())
+      // Mark that we have added the children if any
+      if (current.getNumChildren() > 0)
       {
-        if (current.getType() == nm->integerType())
+        stackHead.d_children_added = true;
+        // We need to add the children
+        for (TNode::iterator child_it = current.begin();
+             child_it != current.end();
+             ++child_it)
         {
-          result = nm->mkSkolem("__intToBV_var",
-                                nm->mkBitVectorType(size),
-                                "Variable introduced in intToBV pass");
-        }
-      }
-      else if (current.isConst())
-      {
-        switch (current.getKind())
-        {
-          case kind::CONST_RATIONAL:
+          TNode childNode = *child_it;
+          NodeMap::iterator childFind = cache.find(childNode);
+          if (childFind == cache.end())
           {
-            Rational constant = current.getConst<Rational>();
-            if (constant.isIntegral()) {
-              AlwaysAssert(constant >= 0);
-              BitVector bv(size, constant.getNumerator());
-              if (bv.toSignedInteger() != constant.getNumerator())
-              {
-                throw TypeCheckingException(
-                    current.toExpr(),
-                    string("Not enough bits for constant in intToBV: ")
-                        + current.toString());
-              }
-              result = nm->mkConst(bv);
-            }
-            break;
+            toVisit.push_back(childNode);
           }
-          default: break;
         }
       }
       else
       {
-        throw TypeCheckingException(
-            current.toExpr(),
-            string("Cannot translate to BV: ") + current.toString());
+        // It's a leaf: could be a variable or a numeral
+        Node result = current;
+        if (current.isVar())
+        {
+          if (current.getType() == nm->integerType())
+          {
+            result = nm->mkSkolem("__intToBV_var",
+                                  nm->mkBitVectorType(size),
+                                  "Variable introduced in intToBV pass");
+          }
+        }
+        else if (current.isConst())
+        {
+          switch (current.getKind())
+          {
+            case kind::CONST_RATIONAL:
+            {
+              Rational constant = current.getConst<Rational>();
+              if (constant.isIntegral()) {
+                AlwaysAssert(constant >= 0);
+                BitVector bv(size, constant.getNumerator());
+                if (bv.toSignedInteger() != constant.getNumerator())
+                {
+                  throw TypeCheckingException(
+                      current.toExpr(),
+                      string("Not enough bits for constant in intToBV: ")
+                          + current.toString());
+                }
+                result = nm->mkConst(bv);
+              }
+              break;
+            }
+            default: break;
+          }
+        }
+        else
+        {
+          throw TypeCheckingException(
+              current.toExpr(),
+              string("Cannot translate to BV: ") + current.toString());
+        }
+        cache[current] = result;
+        toVisit.pop_back();
       }
-      cache[current] = result;
     }
   }
   return cache[n_binary];

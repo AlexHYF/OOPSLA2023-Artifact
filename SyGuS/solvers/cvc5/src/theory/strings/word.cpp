@@ -27,14 +27,24 @@ Node Word::mkEmptyWord(TypeNode tn)
 {
   if (tn.isString())
   {
-    std::vector<unsigned> vec;
-    return NodeManager::currentNM()->mkConst(String(vec));
+    return mkEmptyWord(CONST_STRING);
   }
   else if (tn.isSequence())
   {
     std::vector<Expr> seq;
     return NodeManager::currentNM()->mkConst(
         ExprSequence(tn.getSequenceElementType().toType(), seq));
+  }
+  Unimplemented();
+  return Node::null();
+}
+
+Node Word::mkEmptyWord(Kind k)
+{
+  if (k == CONST_STRING)
+  {
+    std::vector<unsigned> vec;
+    return NodeManager::currentNM()->mkConst(String(vec));
   }
   Unimplemented();
   return Node::null();
@@ -71,8 +81,7 @@ Node Word::mkWordFlatten(const std::vector<Node>& xs)
         seq.push_back(c.toExpr());
       }
     }
-    return NodeManager::currentNM()->mkConst(
-        ExprSequence(tn.getSequenceElementType().toType(), seq));
+    return NodeManager::currentNM()->mkConst(ExprSequence(tn.toType(), seq));
   }
   Unimplemented();
   return Node::null();
@@ -89,17 +98,17 @@ size_t Word::getLength(TNode x)
   {
     return x.getConst<ExprSequence>().getSequence().size();
   }
-  Unimplemented() << "Word::getLength on " << x;
+  Unimplemented();
   return 0;
 }
 
 std::vector<Node> Word::getChars(TNode x)
 {
   Kind k = x.getKind();
-  std::vector<Node> ret;
-  NodeManager* nm = NodeManager::currentNM();
   if (k == CONST_STRING)
   {
+    std::vector<Node> ret;
+    NodeManager* nm = NodeManager::currentNM();
     std::vector<unsigned> ccVec;
     const std::vector<unsigned>& cvec = x.getConst<String>().getVec();
     for (unsigned chVal : cvec)
@@ -111,18 +120,8 @@ std::vector<Node> Word::getChars(TNode x)
     }
     return ret;
   }
-  else if (k == CONST_SEQUENCE)
-  {
-    Type t = x.getConst<ExprSequence>().getType();
-    const Sequence& sx = x.getConst<ExprSequence>().getSequence();
-    const std::vector<Node>& vec = sx.getVec();
-    for (const Node& v : vec)
-    {
-      ret.push_back(nm->mkConst(ExprSequence(t, {v.toExpr()})));
-    }
-    return ret;
-  }
   Unimplemented();
+  std::vector<Node> ret;
   return ret;
 }
 

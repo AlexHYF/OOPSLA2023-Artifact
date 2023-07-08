@@ -40,19 +40,25 @@ class RegExpElimination
    * form (str.in.re x R). If this method returns a non-null node ret, then ret
    * is equivalent to atom.
    */
-  static Node eliminate(Node atom);
+  Node eliminate(Node atom);
 
  private:
+  /** common terms */
+  Node d_zero;
+  Node d_one;
+  Node d_neg_one;
+  /** The type of regular expressions */
+  TypeNode d_regExpType;
   /** return elimination
    *
    * This method is called when atom is rewritten to atomElim, and returns
    * atomElim. id is an identifier indicating the reason for the elimination.
    */
-  static Node returnElim(Node atom, Node atomElim, const char* id);
+  Node returnElim(Node atom, Node atomElim, const char* id);
   /** elimination for regular expression concatenation */
-  static Node eliminateConcat(Node atom);
+  Node eliminateConcat(Node atom);
   /** elimination for regular expression star */
-  static Node eliminateStar(Node atom);
+  Node eliminateStar(Node atom);
 }; /* class RegExpElimination */
 
 }  // namespace strings

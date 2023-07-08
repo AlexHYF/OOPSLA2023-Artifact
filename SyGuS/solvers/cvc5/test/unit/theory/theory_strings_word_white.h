@@ -63,8 +63,7 @@ class TheoryStringsWordWhite : public CxxTest::TestSuite
     Node cac = d_nm->mkConst(String("cac"));
     Node abca = d_nm->mkConst(String("abca"));
 
-    TypeNode stringType = d_nm->stringType();
-    TS_ASSERT(Word::mkEmptyWord(stringType) == empty);
+    TS_ASSERT(Word::mkEmptyWord(kind::CONST_STRING) == empty);
 
     std::vector<Node> vec;
     vec.push_back(abc);
