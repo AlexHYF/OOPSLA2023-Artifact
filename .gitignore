@@ -2,7 +2,6 @@
 .idea
 
 impls
-python
 solvers/eusolver/eusolver
 solvers/cvc5
 solvers/cvc5-1.8
@@ -17,24 +16,6 @@ __pycache__/
 *.so
 
 # Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
