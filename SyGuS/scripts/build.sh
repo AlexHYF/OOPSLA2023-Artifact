@@ -86,7 +86,10 @@ pip install sexpdata==0.0.3 \
 # CVC5
 
 if [[ "$@" =~ "cvc5" ]]; then
-    pushd ./solvers/cvc5
+    pushd ./solvers
+    tar -xvzf cvc5-1.8.tar.gz 
+    mv cvc5-1.8 cvc5 
+    pushd ./cvc5
     ./contrib/get-antlr-3.4
     ./configure.sh # --auto-download
     pushd build
