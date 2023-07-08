@@ -21,11 +21,7 @@ RUN pip install --upgrade pip
 
 RUN pip install pandas matplotlib scipy
 
-RUN  git clone https://github.com/AlexHYF/OOPSLA2023-Artifact.git && cd OOPSLA2023-Artifact
-
-RUN cd SyGuS
-
-RUN ./scripts/build.sh cvc5 && ./scripts/build.sh eusolver.sh 
+RUN  git clone https://github.com/AlexHYF/OOPSLA2023-Artifact.git && cd OOPSLA2023-Artifact &&  cd SyGuS && ./scripts/build.sh cvc5 && ./scripts/build.sh eusolver 
 
 CMD /bin/bash
 

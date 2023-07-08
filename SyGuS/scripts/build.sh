@@ -78,7 +78,7 @@ fi
 # . venv/bin/activate
 
 pip install --upgrade pip
-pip install sexpdata==0.03 \
+pip install sexpdata==0.0.3 \
                 toml \
                 pyparsing z3-solver
 
