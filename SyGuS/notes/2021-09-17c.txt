@@ -1,0 +1,45 @@
+To construct trivial indicator:
+
+1. Collect all constraints together into single constraint phi
+   phi = and(phi1, phi2, ...).
+
+2. For each function f to be synthesized, either:
+   a. f contains the hole, or
+      There is exactly one such function. Let's call this the probe function.
+      In this case, say f is of the form f(x, ...).
+      Create a new macro fi(x, ...,, h), with a new parameter h (of appropriate type),
+      defined as the implementation, but with subexpression at the site of the hole replaced with h.
+      If implementation contains a call to a macro, hole can either cover the macro or not.
+
+      (synth-fun foo (x y) ...) ==>
+
+      Situation 1: Hole over macro
+      (define-fun foo (x y) ... (macro x y) ...)
+                              ______________
+                                     |
+                                    Hole
+
+      Situation 2: Macro separate from hole
+      (define-fun foo (x y) ... (macro x y)      ...          )
+                                             ______________
+                                                   |
+                                                  Hole
+
+      In either situation, foo receives exactly one additional parameter foo (x y h).
+
+   b. f does not contain the hole.
+      In this case, elevate f to the status of a macro with the proposed implementation, and process
+      as per Point 3.
+
+3. For all macros g(x, ...), create a new indicator macro g(x, ..., h1, h2, ..., hk) with:
+   a. Additional parameters h1, h2, ..., hk, all of the same type as the hole.
+   b. k is the number of syntactically unique calls to the probe function f in g.                   !!! Incorrect. Be careful!
+   c. Replace all occurrences of the i-th syntactically unique call to the probe function f(x, ...),
+      with f(x, ..., hi).
+
+(synth-fun max2 (x y) ...)
+    ==> (define-fun max2 (x y h) ...)
+(define-fun foo1 (x y) ... (max2 x y) (max2 (x + 1) y) ...)
+    ==> (define-fun foo1 (x y h1 h2) ... (max2 x y h) (max2 (x + 1) y h2) ...)
+(define-fun foo2 (x y) ... (foo1 x y) (foo1 x (y + 1)))
+    ==> (define-fun foo2 (x y h1 h2 h3 h4) ... (foo1 x y h1 h2) (foo1 x (y + 1) h3 h4) ...)

@@ -1,0 +1,1 @@
+(define-fun eq1 ((x Int) (y Int) (z Int)) Int (ite (and (<= y z) (<= z x)) (ite (<= (+ (- z y) z) x) y x) (ite (<= z y) (ite (<= z x) (ite (<= (+ z z) y) z (ite (<= (+ (- z x) y) x) z y)) (ite (<= (+ z z) y) (ite (<= (- (- z x) x) x) x y) y)) z)))

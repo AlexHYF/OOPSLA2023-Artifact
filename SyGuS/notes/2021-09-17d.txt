@@ -1,0 +1,35 @@
+[
+
+['set-logic', 'LIA'],
+
+['synth-fun', 'e', [['x', 'Int'], ['y', 'Int'], ['h0', 'Int']], 'Int'],
+
+['define-fun', 'mux_2', [['x', 'Int'], ['y', 'Int'], ['h', 'Int']], 'Int', ['ite', ['>=', ['+', 'x', ['*', ['-', '1'], 'y']], '0'], 'h', 'y']],
+
+['define-fun', 'mux_2_p', [['x', 'Int'], ['y', 'Int'], ['h', 'Int']], 'Int', ['ite', ['>=', ['+', 'x', ['*', ['-', '1'], 'y']], '0'], 'h', 'y']],
+
+['declare-var', 'h0', 'Int'],
+
+['declare-var', 'x', 'Int'],
+
+['declare-var', 'y', 'Int'],
+
+['define-fun', 'influentiality_auxiliary', [['x', 'Int'], ['y', 'Int'], ['h', 'Int']], 'Bool', ['and', ['>=', ['+', 'x', ['*', ['-', '1'], 'y']], '0']]],
+
+['define-fun', 'influentiality', [['x', 'Int'], ['y', 'Int'], ['h0', 'Int']], 'Bool', ['or', ['influentiality_auxiliary', 'x', 'y', 'h0']]],
+
+['define-fun', 'influentiality_auxiliary_p', [['x', 'Int'], ['y', 'Int'], ['h', 'Int']], 'Bool', ['and', ['>=', ['+', 'x', ['*', ['-', '1'], 'y']], '0']]],
+
+['define-fun', 'influentiality_p', [['x', 'Int'], ['y', 'Int'], ['h0', 'Int']], 'Bool', ['or', ['influentiality_auxiliary_p', 'x', 'y', 'h0']]],
+
+['define-fun', 'dependencies', [['x', 'Int'], ['y', 'Int'], ['h0', 'Int']], 'Bool', 'true'],
+
+['define-fun', 'trivial_sub_specification', [['x', 'Int'], ['y', 'Int'], ['h0', 'Int']], 'Bool', ['=>', ['dependencies', 'x', 'y', 'h0'], ['=>', ['influentiality', 'x', 'y', 'h0'], ['and', ['>=', ['mux_2', 'x', 'y', 'h0'], 'x'], ['>=', ['mux_2', 'x', 'y', 'h0'], 'y'], ['or', ['=', 'x', ['mux_2', 'x', 'y', 'h0']], ['=', 'y', ['mux_2', 'x', 'y', 'h0']]]]]]],
+
+['define-fun', 'semi_optimal_sub_specification', [['x', 'Int'], ['y', 'Int'], ['h0', 'Int']], 'Bool', ['=>', ['dependencies', 'x', 'y', 'h0'], ['=>', ['influentiality_p', 'x', 'y', 'h0'], ['and', ['>=', ['mux_2_p', 'x', 'y', 'h0'], 'x'], ['>=', ['mux_2_p', 'x', 'y', 'h0'], 'y'], ['or', ['=', 'x', ['mux_2_p', 'x', 'y', 'h0']], ['=', 'y', ['mux_2_p', 'x', 'y', 'h0']]]]]]],
+
+['constraint', ['=', ['semi_optimal_sub_specification', 'x', 'y', 'h0'], ['trivial_sub_specification', 'x', 'y', 'h0']]],
+
+['check-synth']
+
+]

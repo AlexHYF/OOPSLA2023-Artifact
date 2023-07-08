@@ -1,0 +1,101 @@
+1. Parse + extractProbe + unroll
+
+2. Morph.transformation ==> buildDelegate(...)
+                            buildEqualizer(...)
+                            buildIndicator(...)
+
+   For each command cmd in the file, in order:
+   1. If it is a SynthFunCmd, add single test variable
+
+      (synth-fun foo(x, y) ...) ===> (define-fun foo(x, y, h) ...)
+
+   2. If it is a DefineFunCmd,
+      a. Look at all functions being called within its body
+      b. Collect all of their test variables
+      c. Add that many test variables to this DefineFunCmd
+
+      (define-fun f1(x, y) ...)
+      (synth-fun f2(x, y) ...)
+      (define-fun f3(x, y) = f1(y, x))
+      (define-fun f4(x, y) = f2(x + 1, y + 1))
+      (define-fun f5(x, y) = f2(x + 1, y + 1) + f4(x, y))
+      (define-fun f6(x, y) = f2(x, y) + f2(x, y + 1))
+      -------------------------
+      (define-fun f1(x, y) ...)
+      (define-fun f2(x, y, h) ...)
+      (define-fun f3(x, y) = f1(y, x))
+      (define-fun f4(x, y, h) = f2(x + 1, y + 1, h))
+      (define-fun f5(x, y, h1, h2) = f2(x + 1, y + 1, h1) + f4(x, y, h2))
+      (define-fun f6(x, y, h1, h2) = f2(x, y, h1) + f2(x, y + 1, h2))
+
+   3. What about path conditions and equality constraints?
+
+      a. Look at the implementation, and determine the constraint on the inputs under which hole is
+         evaluated. This is the _original_ path constraint.
+
+      b. Assuming unrolled: Look at every call to the synth-fun in the constraint, and specialize
+         the original patch constraint for this call. This is the constraint on universal variables
+         under which _this call_ to the synth-fun evaluates the hole.
+
+      c. The disjunction of all specialized path constraints is the constraint under which at least
+         one hole is evaluated. This is the _domain of relevance_.
+
+      d. For each pair of calls (c1, c2) to the synth-fun, add the constraint:
+         if input variables in c1 are all equal to input variables in c2,
+         then corresponding hole variables must be equal.
+
+   4. If it is a constraint, ...
+
+3. Reformation.reform(...) ==> simplify(...)
+               ------
+               verb
+
+   Detection / transformation
+   --------------------------
+   nouns
+
+   string.length
+
+====================================================================================================
+
+Original SyGuS problem: Find f such that for all x, phi(f, x).
+
+1. Build indicator function 1-triv(x, h1, h2, ...)
+
+2. Find 1-target(x, h1, h2, ...) such that
+   for all x, h1, h2, ...,
+   if dom_of_relevance(x, h1, h2, ...) and equality constraints satisfied,
+   then 1-tgt(x, h1, h2, ...) = 1-triv(x, h1, h2, ...).
+
+   a. We don't have powerful enough program synthesizer.
+   b. Therefore:
+      - Define 1-tgt(x, h1, h2, ...) = 1-triv(x, h1, h2, ...).
+      - Repeat:
+        - Pick some subexpression e-tgt in 1-tgt.
+        - Synthesize e-tgt' such that
+          for all x, h1, h2, ...
+          if dom_of_relevance and equality constraints satisfied,
+          then e-tgt'(x, h1, h2, ...) = e-tgt(x, h1, h2, ...)
+        - Construct 1-tgt'(x, h1, h2, ...) = 1-tgt(x, h1, h2, ...) but with e-tgt replaced with e-tgt'.
+        - Redefine 1-tgt(x, h1, h2, ...) = 1-tgt'(x, h1, h2, ...)
+
+0<x<1 => x^2 < x 
+        ---------
+           e(x)
+
+
+
+0<x<1 => true
+         -----
+         e'(x) 
+
+0<x<1 => x^2 < x
+----------------
+
+1_phi-triv(f) = 1_phi-tgt(f')
+
+Equalizer: For all x, h1, h2, h3, ...
+
+====================================================================================================
+
+1. Run EUSolver and CVC5 on all SyGuS benchmarks. Collect the implementations

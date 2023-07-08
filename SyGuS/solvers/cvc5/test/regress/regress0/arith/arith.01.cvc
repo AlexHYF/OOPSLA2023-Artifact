@@ -1,0 +1,5 @@
+% EXPECT: entailed
+x : REAL;
+y : REAL;
+
+QUERY (x * y ) = (y * x);

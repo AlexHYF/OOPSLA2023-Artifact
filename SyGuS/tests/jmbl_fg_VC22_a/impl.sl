@@ -1,0 +1,1 @@
+(define-fun f ((x1 Int) (x2 Int)) Int (ite (= x1 x2) 0 1))

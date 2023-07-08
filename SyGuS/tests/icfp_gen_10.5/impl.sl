@@ -1,0 +1,2 @@
+
+(define-fun f ( (x ( _ BitVec 64))) ( _ BitVec 64) ( if0 ( bvand ( shr16 x) #x0000000000000001) ( if0 ( bvand x #x0000000000000001) ( bvnot #x0000000000000000) ( shl1 ( bvadd x #x0000000000000001))) ( shl1 ( bvadd x #x0000000000000001))))

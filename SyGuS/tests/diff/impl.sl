@@ -1,0 +1,1 @@
+(define-fun f ((x Int) (y Int)) Int (ite (> x y) (- x y) (- y x)))

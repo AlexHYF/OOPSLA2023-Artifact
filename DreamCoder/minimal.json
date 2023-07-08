@@ -1,0 +1,14 @@
+[
+    {
+    "examples":[
+        {
+            "i":[ [10,11,8], [1,7,5]],
+            "o": [9,4,3]
+        }
+    ],
+    "implementations":[
+    "(lambda (lambda (map  (lambda (- (#(lambda (lambda (car (fold (range $1) $0 (lambda (lambda (cdr $0))))))) $0 $2) ((lambda (lambda (car (fold (range $1) $0 (lambda (lambda (cdr $0))))))) $0 $1))) (range ((lambda (fold $0 0 (lambda (lambda (+ 1 $0))))) $1)))))"
+    ],
+    "name":"add-k with k=3"
+    }
+]
