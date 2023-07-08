@@ -96,6 +96,7 @@ if [[ "$@" =~ "cvc5" ]]; then
     make -j
     popd
     popd
+	popd
 fi
 
 ####
