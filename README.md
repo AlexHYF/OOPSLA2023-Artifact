@@ -64,8 +64,8 @@ all the data necessary for reproducing the figures and table in `cvc5.csv` and `
 `/OOPSLA2023-Artifact`. 
 
 
-Reproducing SyGuS benchmark experiment
---------------------------------------
+Reproducing DreamCoder benchmark experiment
+-------------------------------------------
 
 This experiment consists of 1 step, which is to calculate the sub-specification for all the implementations in
 `synthesized_code.json`. Execute the following command:
