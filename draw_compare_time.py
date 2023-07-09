@@ -43,4 +43,4 @@ plt.xticks([r + 0.5 * barWidth for r in range(len(eusolver))], ['≤ 1X', '≤ 1
 plt.gca().yaxis.set_major_formatter(mtick.PercentFormatter(xmax=1.0))
 plt.legend(fontsize="15")
 plt.tight_layout()
-plt.savefig("compare_time.pdf")
+plt.savefig("compare-time.pdf")
