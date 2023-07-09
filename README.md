@@ -64,8 +64,8 @@ all the data necessary for reproducing the figures and table in `cvc5.csv` and `
 `/OOPSLA2023-Artifact`. 
 
 
-Reproducing SyGuS benchmark experiment
---------------------------------------
+Reproducing DreamCoder benchmark experiment
+-------------------------------------------
 
 This experiment consists of 1 step, which is to calculate the sub-specification for all the implementations in
 `synthesized_code.json`. Execute the following command:
@@ -103,4 +103,68 @@ python draw_compare_time.py
 The first script will produce __Figure 5a__ in `runtime-dist.pdf` and the second script will produce __Figure 5b__ in 
 `compare-time.pdf`.
  
+Tutorial to run S3
+------------------
 
+As mentioned earlier, S3 consists of 2 parts that handles SyGuS and DreamCoder respectively.
+
+SyGuS
+-----
+
+1. Pick a specification from the tests directory:
+
+   ```
+   $ cd SyGuS
+   $ find tests -name ‘*.sl’
+   ```
+
+   a. Specifications are described using Version 1.0 of the SyGuS language. The specification
+      language is defined in (https://sygus.org/assets/pdf/SyGuS-IF.pdf).
+
+   b. We provide copies of the problems from the 2017 SyGuS Competition in the directory
+      `tests/sygus-benchmarks/comp/2017`.
+
+2. Depending on your platform, run the SyGuS solver of your choice. For example
+
+   ```
+   $ export SPEC_SL=tests/sygus-benchmarks/comp/2017/General_Track/max2.sl
+   $ (./run_cvc5.sh | ./run_eusolver.sh) $SPEC_SL | tee impl.sl
+   ```
+
+3. Examine the implementation and determine the hole of interest. For example, say the
+   implementation produced is:
+
+   ```
+   (define-fun max2 ((x Int) (y Int)) Int (ite (<= x y) y x))
+   ```
+
+   Every sub-expression of this implementation may be identified with an address. For example, the
+   then-branch of the conditional has the address `0 4 2 -1`, corresponding sequentially to the
+   indices of its ancestors in the s-expression. The final -1 is an end-of-address marker.
+
+4. Run S3:
+
+   ```
+   echo 0 4 2 -1 | ./run_s3.sh $SPEC_SL impl.sl 2> /dev/null
+   ```
+
+  The implementation also prints detailed logs from various points in its execution. These logs may
+  be viewed by removing the final stderr redirect to `/dev/null`.
+
+DreamCoder
+----------
+
+We provide copies of problems and their corresponding implementations from the DreamCoder artifact
+(https://dl.acm.org/do/10.1145/3410302/full/) in the `synthesized_code.json`. We produced this file
+by pre-processing data in the `list_tasks.json` file in the artifact distribution. For the sake of
+experimentation, we provide a minimal version of this file with one specification-implementation
+pair in `minimal.json`. To execute S3:
+
+```
+$ cd DreamCoder
+$ python3 main.py minimal.json
+```
+
+Implementations produced by DreamCoder are lambda-expressions written using de Bruijn indices. Some
+sub-expressions are highlighted with a pound sign, indicating their status as elements of the
+constructed library. S3 prints subspecs for each of these highlighted functions.
