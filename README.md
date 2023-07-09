@@ -20,7 +20,7 @@ Each container is automatically assigned a mnemonic name, using which one may op
 To uninstall the artifact, run the following commands:
 ```
 [sudo] docker images           # To list the currently installed images
-[sudo] docker rmi prosynth     # To delete the prosynth image
+[sudo] docker rmi s3     # To delete the prosynth image
 [sudo] docker images           # To verify successful deletion
 ```
 
