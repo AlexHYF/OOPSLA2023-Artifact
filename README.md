@@ -61,9 +61,8 @@ Notice that the second command takes approximately 3 hours on a Ryzen 5950X and 
 hours. We use `task-spooler` to schedule the jobs so the tasks are not necessarily completed when the command exits and we
 recommand using `tsp` to determine if the experiment is complete(no more queued and running tasks).
 
-The raw data from the second and the third command are stored in `./SyGuS/impls`, and the last command will produce the
-all the statistics necessary for reproducing the figures and table in `cvc5.csv` and `eusolver.csv` under
-`/OOPSLA2023-Artifact`. 
+The raw data are stored in `./SyGuS/impls`, and the last command will produce the all the statistics necessary for
+reproducing the figures and table in `cvc5.csv` and `eusolver.csv` under `/OOPSLA2023-Artifact`. 
 
 
 Reproducing DreamCoder benchmark experiment
