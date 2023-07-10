@@ -399,7 +399,7 @@ def calculate_triv_size(expr):
         return ret
     else:
         return 1 
-stats = []
+stats = [['spec_size', 'impl_size', 'triv_size', 'subspec_size']]
 true_ctn = 0
 for task in data:
     print("Processing task: " + task["name"])

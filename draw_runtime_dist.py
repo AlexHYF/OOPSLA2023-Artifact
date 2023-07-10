@@ -1,9 +1,9 @@
 import pandas as pd
 import numpy as np
 from scipy.stats import gmean
-cvc5_data = pd.read_csv("CVC5_test.csv")
+cvc5_data = pd.read_csv("cvc5.csv")
 eusolver_data = pd.read_csv("eusolver.csv")
-dc_data = pd.read_csv("DC.csv")
+#dc_data = pd.read_csv("DC.csv")
 import matplotlib.pyplot as plt
 #plt.rcParams["figure.figsize"] = [15.00, 10.00]
 #plt.rcParams['font.size'] = '29'
