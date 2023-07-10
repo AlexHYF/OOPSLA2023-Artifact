@@ -53,7 +53,7 @@ cd /OOPSLA2023-Artifact/SyGuS
 ./scripts/get-impls.sh
 ./scripts/do-runs.sh
 cd ..
-python extract_sygus_data.py
+python3 extract_sygus_data.py
 ```
 
 Notice that the second command takes approximately 6 hours on a Ryzen 5950X and the third command takes approximately 24
@@ -91,14 +91,14 @@ cd /OOPSLA-Artifact
 ```
 To obtain __Figure 4__ and __Table 1__, run:
 ```
-python draw_reduction.py
+python3 draw_reduction.py
 ```
 The script will print 2 lines, each has 3 numbers. These 6 numbers are __Table 1__. It will also produce
 `reduction.pdf` which is __Figure 4__.
 To obtain __Figure 5a and 5b__, run:
 ```
-python draw_runtime_dist.py
-python draw_compare_time.py
+python3 draw_runtime_dist.py
+python3 draw_compare_time.py
 ```
 The first script will produce __Figure 5a__ in `runtime-dist.pdf` and the second script will produce __Figure 5b__ in 
 `compare-time.pdf`.
