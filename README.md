@@ -57,9 +57,9 @@ cd ..
 python3 extract_sygus_data.py
 ```
 
-Notice that the second command takes approximately 3 hours on a Ryzen 5950X and the forth command takes approximately 12 
+Notice that the second command takes approximately 3 hours on a Ryzen 5950X and the forth command takes approximately 8 
 hours. We use `task-spooler` to schedule the jobs so the tasks are not necessarily completed when the command exits and we
-recommand using `tsp` to determine if the experiment is complete(no more queued and running tasks).
+recommand using `tsp` to determine if the experiment is completed(no more queued and running tasks).
 
 The raw data are stored in `./SyGuS/impls`, and the last command will produce the all the statistics necessary for
 reproducing the figures and table in `cvc5.csv` and `eusolver.csv` under `/OOPSLA2023-Artifact`. 
