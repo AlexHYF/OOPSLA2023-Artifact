@@ -10,5 +10,4 @@
 ########################################################################################################################
 
 SCRIPT_DIR=`dirname -- "$( realpath -- "$0"; )";`
-. $SCRIPT_DIR/../venv/cpython/bin/activate
 $SCRIPT_DIR/../src/funCounter.py "$@"
