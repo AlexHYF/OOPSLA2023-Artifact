@@ -51,13 +51,15 @@ sub-specifications. Execute the following sub-tasks:
 ```
 cd /OOPSLA2023-Artifact/SyGuS
 ./scripts/get-impls.sh
+./scripts/process-impls.sh
 ./scripts/do-runs.sh
 cd ..
 python extract_sygus_data.py
 ```
 
-Notice that the second command takes approximately 6 hours on a Ryzen 5950X and the third command takes approximately 24
-hours. We use tsp to schedule the jobs and we recommand using `htop` to determine if the experiment is complete.
+Notice that the second command takes approximately 3 hours on a Ryzen 5950X and the forth command takes approximately 12 
+hours. We use tsp to schedule the jobs so the tasks are not necessarily completed when the command exits and we
+recommand using `htop` to determine if the experiment is complete.
 
 The raw data from the second and the third command are stored in `./SyGuS/impls`, and the last command will produce the
 all the data necessary for reproducing the figures and table in `cvc5.csv` and `eusolver.csv` under
