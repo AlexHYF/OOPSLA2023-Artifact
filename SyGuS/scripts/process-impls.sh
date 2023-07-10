@@ -82,5 +82,5 @@ for SOLVER in cvc5 eusolver; do
                  "$NHI2, ," \
                  "$ENUMERATOR_STATUS, $NUM_HOLES"
         done
-    ) #> $BASE_DIR/impls-stats.csv
+    ) > $BASE_DIR/impls-stats.csv
 done
