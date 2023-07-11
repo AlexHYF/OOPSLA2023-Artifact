@@ -6,7 +6,7 @@ Introduction
 
 This is the artifact package accompanying our OOPSLA 2023 submission titlled _Explainable Program Synthesis By
 Localizing Specifications_. The paper presents an new concept call _sub-specification_ that can act as an augmentation
-to the program synthesis results and an algorithm that synthesizes sub-specifications. We have implementated this
+to program synthesis results and an algorithm that synthesizes sub-specifications. We have implementated this
 algorithm in a tool named S3. and benchmarked them with 2 program synthesis tasks, SyGuS and DreamCoder.
 
 This artifact contains all the tools (S3, CVC5, EUSolver), benchmark files, and scripts to reproduce the experiments
