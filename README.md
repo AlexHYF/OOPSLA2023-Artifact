@@ -73,7 +73,7 @@ This experiment consists of 1 step, which is to calculate the sub-specification 
 
 ```
 cd /OOPSLA2023-Artifact/DreamCoder
-python main.py synthesized_code.json > output.txt
+python3 main.py synthesized_code.json > output.txt
 ```
 
 This experiment runs very fast and should complete within minutes. After the execution, the sub-specifications are
