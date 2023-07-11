@@ -132,8 +132,8 @@ SyGuS
 1. Pick a specification from the tests directory:
 
    ```
-   $ cd SyGuS
-   $ find tests -name ‘*.sl’
+   cd SyGuS
+   find tests -name ‘*.sl’
    ```
 
    a. Specifications are described using Version 1.0 of the SyGuS language. The specification
@@ -179,8 +179,8 @@ experimentation, we provide a minimal version of this file with one specificatio
 pair in `minimal.json`. To execute S3:
 
 ```
-$ cd DreamCoder
-$ python3 main.py minimal.json
+cd DreamCoder
+python3 main.py minimal.json
 ```
 
 Implementations produced by DreamCoder are lambda-expressions written using de Bruijn indices. Some
