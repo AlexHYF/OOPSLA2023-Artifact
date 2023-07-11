@@ -1,6 +1,8 @@
 Explainable Program Synthesis by Localizing Specifications
 ==========================================================
 
+Amirmohammad Nazari, Yifei Huang, Roopsha Samanta, Arjun Radhakrishna, Mukund Raghothaman
+
 Introduction
 ------------
 
