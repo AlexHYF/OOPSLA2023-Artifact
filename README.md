@@ -6,13 +6,13 @@ Amirmohammad Nazari, Yifei Huang, Roopsha Samanta, Arjun Radhakrishna, Mukund Ra
 Introduction
 ------------
 
-This is the artifact package accompanying our OOPSLA 2023 submission titlled _Explainable Program Synthesis By
+This is the artifact package accompanying our OOPSLA 2023 submission titled _Explainable Program Synthesis By
 Localizing Specifications_. The paper presents an new concept call _sub-specification_ that can act as an augmentation
-to program synthesis results and an algorithm that synthesizes sub-specifications. We have implementated this
+to program synthesis results and an algorithm that synthesizes sub-specifications. We have implemented this
 algorithm in a tool named S3. and benchmarked them with 2 program synthesis tasks, SyGuS and DreamCoder.
 
 This artifact contains all the tools (S3, CVC5, EUSolver), benchmark files, and scripts to reproduce the experiments
-described in the paper. In hit document, we will describle the outline of these experiments, how to run them, and also
+described in the paper. In hit document, we will describe the outline of these experiments, how to run them, and also
 describe how one may use S3 to calculate sub-specifications on SyGuS solver and DreamCoder's results of their own.
 
 This artifact also contains the webpages of our user study which we promised to share with the reviewers under
@@ -66,7 +66,7 @@ presented in the paper can be reproduced the following 3 steps:
 Reproducing SyGuS benchmark experiment
 --------------------------------------
 
-This experiment consists of 2 steps: Obtaining the synthesis result from SyGuS solver and calcute their
+This experiment consists of 2 steps: Obtaining the synthesis result from SyGuS solver and calculate their
 sub-specifications. Execute the following sub-tasks:
 ```
 cd /OOPSLA2023-Artifact/SyGuS
@@ -79,7 +79,7 @@ python3 extract_sygus_data.py
 
 Notice that the second command takes approximately 3 hours on a Ryzen 5950X and the forth command takes approximately 8 
 hours. We use `task-spooler` to schedule the jobs so the tasks are not necessarily completed when the command exits and we
-recommand using `tsp` to determine if the experiment is completed(no more queued and running tasks).
+recommend using `tsp` to determine if the experiment is completed(no more queued and running tasks).
 
 The raw data are stored in `./SyGuS/impls`, and the last command will produce the all the statistics necessary for
 reproducing the figures and table in `cvc5.csv` and `eusolver.csv` under `/OOPSLA2023-Artifact`. 
