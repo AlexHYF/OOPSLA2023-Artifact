@@ -7,16 +7,18 @@ Introduction
 ------------
 
 This is the artifact package accompanying our OOPSLA 2023 submission titled _Explainable Program Synthesis By
-Localizing Specifications_. The paper presents an new concept call _sub-specification_ that can act as an augmentation
-to program synthesis results and an algorithm that synthesizes sub-specifications. We have implemented this
-algorithm in a tool named S3. and benchmarked them with 2 program synthesis tasks, SyGuS and DreamCoder.
+Localizing Specifications_. Our paper presents a new approach to explain the programs produced by program synthesis
+tools. We call this concept the _sub-specification_. Our paper presents examples of how subspecs can be useful and an
+algorithm to synthesize subspecifications. We have implemented this algorithm, which we call S3, for two program
+synthesis settings, SyGuS and DreamCoder. Our paper includes a user study and an experimental evaluation of the subspec
+synthesis procedure.
 
 This artifact contains all the tools (S3, CVC5, EUSolver), benchmark files, and scripts to reproduce the experiments
-described in the paper. In hit document, we will describe the outline of these experiments, how to run them, and also
+described in the paper. In this document, we will describe the outline of these experiments, how to run them, and also
 describe how one may use S3 to calculate sub-specifications on SyGuS solver and DreamCoder's results of their own.
 
-This artifact also contains the webpages of our user study which we promised to share with the reviewers under
-`User-Study/`. Due to confidential reason we are not able to share the data of the user study result.
+The reviewers expressed a desire to see the user study instruments. We have accordingly included saved copies of the
+Qualtrics surveys that we used in the study. These may be found in the directory `User-Study/`.
 
 Installing the Artifact
 -----------------------
@@ -48,26 +50,27 @@ Structure of the Experiments
 ----------------------------
 
 In this paper, we present a tool called S3 to calculate the sub-specification for SyGuS and DreamCoder. S3 consists of
-2 parts that calculate the sub-specification for SyGuS tasks and DreamCoder tasks respectively. All the results
-presented in the paper can be reproduced the following 3 steps:
+two parts that calculate the sub-specifications for SyGuS and DreamCoder tasks respectively. All the results presented
+in the paper can be reproduced the following 3 steps:
 
-1. __SyGuS:__ Run CVC5 and EUSolver on SyGuS competition 2017 benchmarks, obtain the implementations and the runtime
-  statistics. Then run S3 on all the program locations on the previously obtained implementations.
+1. __Apply S3 to SyGuS problems:__ Run CVC5 and EUSolver on synthesis tasks from the 2017 SyGuS Competition. We then
+   obtain the implementations and finally run S3 on all the program locations on the previously obtained
+   implementations.
   
-  The data from this experiment is used to produce __Figure 4 and 5__, and __Table 1__ in the main paper.
+   The data from this experiment is used to produce __Figure 4 and 5__, and __Table 1__ in the main paper.
 
-2. __DreamCoder:__ Run S3 on DreamCoder List benchmark. We provide the tasks and synthesized implementations in
-   `synthesized_code.json`.
+2. __Apply S3 to DreamCoder problems:__ Run S3 to the synthesis tasks from DreamCoder that involve list processing. We
+   provide the tasks and synthesized implementations in the file `synthesized_code.json`.
 
-  The data from this experiment is used to produce __Figure 4__ in the main paper.
+   The data from this experiment is used to produce __Figure 4__ in the main paper.
 
-3. __Generate Figure:__ Run the data processing scripts to extract data from the first 2 steps and draw the figures.
+3. __Generate Figures:__ Run the data processing scripts to extract data from the first two steps and draw the figures.
 
-Reproducing SyGuS benchmark experiment
+Reproducing SyGuS Benchmark Experiment
 --------------------------------------
 
-This experiment consists of 2 steps: Obtaining the synthesis result from SyGuS solver and calculate their
-sub-specifications. Execute the following sub-tasks:
+This experiment consists of two steps: Obtaining the synthesis result from SyGuS solver and calculate their
+sub-specifications. Execute the following commands:
 ```
 cd /OOPSLA2023-Artifact/SyGuS
 ./scripts/get-impls.sh
@@ -77,57 +80,61 @@ cd ..
 python3 extract_sygus_data.py
 ```
 
-Notice that the second command takes approximately 3 hours on a Ryzen 5950X and the forth command takes approximately 8 
-hours. We use `task-spooler` to schedule the jobs so the tasks are not necessarily completed when the command exits and we
-recommend using `tsp` to determine if the experiment is completed(no more queued and running tasks).
+The second command took approximately 3 hours on a Ryzen 5950X and the fourth command takes approximately 8 hours. Note
+that the script uses the `task-spooler` utility to concurrently schedule jobs. As a result, the tasks are not
+necesssarily all complete when the top-level command exits. We recommend running `tsp` to monitor the status of these
+scheduled tasks.
 
-The raw data are stored in `./SyGuS/impls`, and the last command will produce the all the statistics necessary for
-reproducing the figures and table in `cvc5.csv` and `eusolver.csv` under `/OOPSLA2023-Artifact`. 
+The raw data are stored in `./SyGuS/impls`. The last command will produce all the statistics necessary for reproducing
+the figures and table in `cvc5.csv` and `eusolver.csv` under `/OOPSLA2023-Artifact`. 
 
 
-Reproducing DreamCoder benchmark experiment
+Reproducing DreamCoder Benchmark Experiment
 -------------------------------------------
 
-This experiment consists of 1 step, which is to calculate the sub-specification for all the implementations in
-`synthesized_code.json`. Execute the following command:
+This experiment consists of a single step, which is to calculate the sub-specification for all the implementations
+listed in `synthesized_code.json`. Execute the following command:
 
 ```
 cd /OOPSLA2023-Artifact/DreamCoder
 python3 main.py synthesized_code.json > output.txt
 ```
 
-This experiment runs very fast and should complete within minutes. After the execution, the sub-specifications are
-stored in `output.txt` and the statistics are stored in `DC.csv`
+This experiment is very quick and should only require a few minutes to complete. After the execution, the
+sub-specifications are stored in `output.txt` and the statistics are stored in the file `DC.csv`.
 
 
-Reproducing all the figures and table
--------------------------------------
+Reproducing the Figures and Tables from the Paper
+-------------------------------------------------
 
-After running the 2 experiments above. We should have `cvc5.csv` and `eusover.csv` under `/OOPSLA2023-Artifact` and
+After running the 2 experiments above, we should have `cvc5.csv` and `eusover.csv` under `/OOPSLA2023-Artifact` and
 `DC.csv` under `/OOPSLA2023-Artifact/DreamCoder`.
 
-Go to the root of the artifact:
+Start by returning to the root directory of the artifact:
 ```
 cd /OOPSLA-Artifact
 ```
+
 To obtain __Figure 4__ and __Table 1__, run:
 ```
 python3 draw_reduction.py
 ```
-The script will print 2 lines, each has 3 numbers. These 6 numbers are __Table 1__. It will also produce
-`reduction.pdf` which is __Figure 4__.
-To obtain __Figure 5a and 5b__, run:
+The script will print two lines, each having three numbers. These 6 numbers are the statistics reported in __Table 1__.
+It will also produce a new file named `reduction.pdf` which is __Figure 4__.
+
+To obtain __Figures 5a__ and __5b__, run:
 ```
 python3 draw_runtime_dist.py
 python3 draw_compare_time.py
 ```
-The first script will produce __Figure 5a__ in `runtime-dist.pdf` and the second script will produce __Figure 5b__ in 
-`compare-time.pdf`.
+The two scripts will produce the corresponding figures in the files named `runtime-dist.pdf` and `compare-time.pdf`
+respectively.
  
-Tutorial to run S3
+Tutorial to Run S3
 ------------------
 
-As mentioned earlier, S3 consists of 2 parts that handles SyGuS and DreamCoder respectively.
+We now present a brief tutorial to run S3 on specification-implementation pairs of the user's choosing. As we mentioned
+earlier, our S3 artifact contains two implementations that target SyGuS and DreamCoder respectively.
 
 SyGuS
 -----
@@ -139,29 +146,29 @@ SyGuS
    find tests -name ‘*.sl’
    ```
 
-   a. Specifications are described using Version 1.0 of the SyGuS language. The specification
-      language is defined in (https://sygus.org/assets/pdf/SyGuS-IF.pdf).
+   a. Specifications are described using Version 1.0 of the SyGuS language. The specification language is defined in
+      (https://sygus.org/assets/pdf/SyGuS-IF.pdf).
 
    b. We provide copies of the problems from the 2017 SyGuS Competition in the directory
       `tests/sygus-benchmarks/comp/2017`.
 
-2. Depending on your platform, run the SyGuS solver of your choice. For example
+2. Run the SyGuS solver of your choice. For example
 
    ```
    $ export SPEC_SL=tests/sygus-benchmarks/comp/2017/General_Track/max2.sl
-   $ (./run_cvc5.sh | ./run_eusolver.sh) $SPEC_SL | tee impl.sl
+   $ [./run_cvc5.sh | ./run_eusolver.sh] $SPEC_SL | tee impl.sl
    ```
 
-3. Examine the implementation and determine the hole of interest. For example, say the
-   implementation produced is:
+3. Examine the implementation and determine the program location of interest. For example, say the implementation
+   produced is:
 
    ```
    (define-fun max2 ((x Int) (y Int)) Int (ite (<= x y) y x))
    ```
 
-   Every sub-expression of this implementation may be identified with an address. For example, the
-   then-branch of the conditional has the address `0 4 2 -1`, corresponding sequentially to the
-   indices of its ancestors in the s-expression. The final -1 is an end-of-address marker.
+   Every sub-expression of this implementation may be identified with an address. For example, the then-branch of the
+   conditional has the address `0 4 2 -1`, corresponding sequentially to the indices of its ancestors in the
+   s-expression. The final -1 is an end-of-address marker.
 
 4. Run S3:
 
@@ -169,23 +176,22 @@ SyGuS
    echo 0 4 2 -1 | ./run_s3.sh $SPEC_SL impl.sl 2> /dev/null
    ```
 
-  The implementation also prints detailed logs from various points in its execution. These logs may
-  be viewed by removing the final stderr redirect to `/dev/null`.
+   The implementation also prints detailed logs from various points in its execution. These logs may be viewed by
+   removing the final stderr redirect to `/dev/null`.
 
 DreamCoder
 ----------
 
 We provide copies of problems and their corresponding implementations from the DreamCoder artifact
-(https://dl.acm.org/do/10.1145/3410302/full/) in the `synthesized_code.json`. We produced this file
-by pre-processing data in the `list_tasks.json` file in the artifact distribution. For the sake of
-experimentation, we provide a minimal version of this file with one specification-implementation
-pair in `minimal.json`. To execute S3:
+(https://dl.acm.org/do/10.1145/3410302/full/) in the `synthesized_code.json`. We produced this file by pre-processing
+data in the `list_tasks.json` file in the artifact distribution. For the sake of experimentation, we provide a minimal
+version of this file with one specification-implementation pair in `minimal.json`. To execute S3:
 
 ```
 cd DreamCoder
 python3 main.py minimal.json
 ```
 
-Implementations produced by DreamCoder are lambda-expressions written using de Bruijn indices. Some
-sub-expressions are highlighted with a pound sign, indicating their status as elements of the
-constructed library. S3 prints subspecs for each of these highlighted functions.
+Implementations produced by DreamCoder are lambda-expressions written using de Bruijn indices. Some sub-expressions are
+highlighted with a pound sign, indicating their status as elements of the constructed library. S3 prints subspecs for
+each of these highlighted functions.
