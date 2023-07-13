@@ -15,7 +15,7 @@ This artifact contains all the tools (S3, CVC5, EUSolver), benchmark files, and 
 described in the paper. In hit document, we will describle the outline of these experiments, how to run them, and also
 describe how one may use S3 to calculate sub-specifications on SyGuS solver and DreamCoder's results of their own.
 
-This artifact also contains the webpages of our user study which we promised to share with the reviewer under
+This artifact also contains the webpages of our user study which we promised to share with the reviewers under
 `User-Study/`. Due to confidential reason we are not able to share the data of the user study result.
 
 Installing the Artifact
