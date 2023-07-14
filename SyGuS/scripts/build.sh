@@ -93,7 +93,7 @@ if [[ "$@" =~ "cvc5" ]]; then
     ./contrib/get-antlr-3.4
     ./configure.sh # --auto-download
     pushd build
-    make -j
+    make -j 8
     popd
     popd
 	popd
